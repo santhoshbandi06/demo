@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telangana Government Schemes - Information Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #ff6b35;
+            --secondary: #f7931e;
+            --accent: #004687;
+            --success: #4caf50;
+            --light: #f9f9f9;
+            --dark: #333;
+            --border: #ddd;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #004687 0%, #ff6b35 100%);
+            min-height: 100vh;
+            display: flex;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            /* allow the page to scroll when window is maximized */
+            max-height: calc(100vh - 40px);
+            overflow: visible;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: linear-gradient(135deg, #004687 0%, #ff6b35 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1em;
+            opacity: 0.95;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 0;
+            flex: 1 1 auto;
+            overflow: visible;
+        }
+
+        /* ===== SIDEBAR - CATEGORIES ===== */
+        .sidebar {
+            background: var(--light);
+            border-right: 2px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .categories {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .category-btn {
+            padding: 15px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-btn:hover {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(247, 147, 30, 0.1) 100%);
+            transform: translateX(5px);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .category-icon {
+            font-size: 1.5em;
+        }
+
+        /* ===== CHAT AREA ===== */
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            background: #fafafa;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bot-message {
+            text-align: left;
+        }
+
+        .bot-text {
+            display: inline-block;
+            background: white;
+            color: var(--dark);
+            padding: 15px 20px;
+            border-radius: 12px;
+            border-left: 5px solid var(--primary);
+            max-width: 85%;
+            word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== SCHEMES LIST ===== */
+        .schemes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+        }
+
+        .scheme-card {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, rgba(247, 147, 30, 0.05) 100%);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .scheme-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.2);
+        }
+
+        .scheme-name {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .scheme-preview {
+            font-size: 0.85em;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* ===== SCHEME DETAIL ===== */
+        .scheme-detail {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 85%;
+        }
+
+        .detail-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-content {
+            color: #444;
+            line-height: 1.8;
+            font-size: 0.95em;
+        }
+
+        .detail-content strong {
+            color: var(--accent);
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 15px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--primary);
+            transform: translateX(-3px);
+        }
+
+        .welcome-message {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* ===== INPUT AREA ===== */
+        .input-section {
+            padding: 20px;
+            background: white;
+            border-top: 2px solid var(--border);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #f5f5f5;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                border-right: none;
+                border-bottom: 2px solid var(--border);
+                max-height: 150px;
+                flex-direction: row;
+                gap: 10px;
+                overflow-x: auto;
+            }
+
+            .sidebar-title {
+                display: none;
+            }
+
+            .categories {
+                flex-direction: row;
+                width: 100%;
+            }
+
+            .category-btn {
+                flex: 1;
+                min-width: 120px;
+            }
+
+            .schemes-container {
+                grid-template-columns: 1fr;
+            }
+
+            .scheme-detail {
+                max-width: 95%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .app-container {
+                height: auto;
+            }
+
+            .chat-messages {
+                padding: 15px;
+            }
+
+            .bot-text {
+                max-width: 95%;
+            }
+
+            .scheme-detail {
+                max-width: 100%;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .scroll-hint {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.85em;
+            color: #999;
+            font-style: italic;
+        }
+
+        /* ===== TYPING INDICATOR ===== */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 10px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>🏛️ Telangana Government Schemes</h1>
+            <p>Your Guide to Citizen Welfare Programs & Initiatives</p>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- SIDEBAR - CATEGORIES -->
+            <div class="sidebar">
+                <div class="sidebar-title">📂 Categories</div>
+                <div class="categories" id="categoriesContainer"></div>
+            </div>
+
+            <!-- CHAT AREA -->
+            <div class="chat-area">
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="input-section">
+                    <!-- Selection-only interface: search disabled to enforce selection via buttons -->
+                    <input 
+                        type="text" 
+                        class="search-box" 
+                        id="searchBox" 
+                        placeholder="🔍 Search disabled — please select a category and scheme"
+                        autocomplete="off"
+                        disabled
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== SCHEMES DATABASE =====
+        const schemesDatabase = {
+            healthcare: {
+                icon: '🏥',
+                title: 'Healthcare & Family Welfare',
+                color: '#e74c3c',
+                schemes: [
+                    {
+                        name: 'Cheyutha Scheme',
+                        shortDesc: 'Free medical & healthcare coverage up to ₹10 lakh',
+                        fullDesc: 'Provides free medical & healthcare up to ₹10 lakh for eligible families under the Rajiv Arogyasri initiative. This comprehensive health scheme ensures that families across Telangana can access quality healthcare without worrying about costs.'
+                    },
+                    {
+                        name: 'Aarogyasri / Cheyutha Expansion',
+                        shortDesc: 'Enhanced healthcare coverage for more households',
+                        fullDesc: 'Healthcare coverage increased and benefits widened to more households. The expansion aims to reach maximum population and provide comprehensive medical support across all income groups in Telangana.'
+                    },
+                    {
+                        name: 'Amma Odi & KCR Kit',
+                        shortDesc: 'Support for mothers, newborns & free transport',
+                        fullDesc: 'Support for mothers and newborns + free transport services. This scheme ensures safe pregnancy, delivery care, and postnatal support for all mothers in Telangana with complimentary transportation.'
+                    },
+                    {
+                        name: 'Aarogya Lakshmi Scheme',
+                        shortDesc: 'Nutritional meals for pregnant women & children',
+                        fullDesc: 'Nutritional meals for pregnant and lactating women, young children. Ensures proper nutrition during critical development stages with subsidized nutritious meal provisions for vulnerable populations.'
+                    }
+                ]
+            },
+            agriculture: {
+                icon: '👩‍🌾',
+                title: 'Farmer & Agriculture Support',
+                color: '#27ae60',
+                schemes: [
+                    {
+                        name: 'Rythu Bandhu / Rythu Bharosa Scheme',
+                        shortDesc: 'Investment support to farmers per acre per season',
+                        fullDesc: 'Investment support to farmers, direct benefit per acre per season. Provides financial assistance to farmers to purchase seeds, fertilizers, and other agricultural inputs for better crop production during each season.'
+                    },
+                    {
+                        name: 'Subsidised Agri Mechanisation Scheme',
+                        shortDesc: 'Subsidy for tractors & harvesters',
+                        fullDesc: 'Subsidy for equipment like tractors and harvesters to help farmers. Covers 30-50% subsidy on agricultural machinery to reduce farming costs and improve efficiency for small and marginal farmers.'
+                    },
+                    {
+                        name: 'Crop Bonus / Support Releases',
+                        shortDesc: 'Bonus payments for kharif crop season',
+                        fullDesc: 'Bonus payments released to farmers for kharif crop season. Additional financial incentives provided on top of MSP for agricultural commodities to encourage farmers and improve their income.'
+                    },
+                    {
+                        name: 'Seed Cooperative Societies Planning',
+                        shortDesc: 'Quality seed support via cooperatives',
+                        fullDesc: 'Quality seed support via cooperatives announced for each district. Ensures availability of high-quality, disease-free seeds at subsidized rates through district-level cooperative societies.'
+                    }
+                ]
+            },
+            welfare: {
+                icon: '🏡',
+                title: 'Social Welfare & Livelihood',
+                color: '#3498db',
+                schemes: [
+                    {
+                        name: 'Maha Lakshmi Scheme',
+                        shortDesc: 'Financial support for women heads of families',
+                        fullDesc: 'Financial support for women heads of families + subsidised gas cylinders + free bus travel under TSRTC. Empowers women by providing monthly allowance, affordable cooking gas, and free public transportation.'
+                    },
+                    {
+                        name: 'Aasara Pension',
+                        shortDesc: 'Pensions for elderly, widows, disabled persons',
+                        fullDesc: 'Pensions for elderly, widows, disabled persons, etc. Monthly pension support of ₹1,500-2,500 to ensure dignified living for senior citizens, widows, and persons with disabilities.'
+                    },
+                    {
+                        name: 'Indiramma Indlu Scheme',
+                        shortDesc: 'Assistance to build houses with ₹5 lakh support',
+                        fullDesc: 'Assistance to build houses with financial support (~₹5 lakh). Provides construction assistance and materials to homeless families to construct permanent housing with dignity and basic facilities.'
+                    },
+                    {
+                        name: 'Gruha Jyothi Scheme',
+                        shortDesc: 'Free electricity up to set monthly unit limit',
+                        fullDesc: 'Free electricity up to a set monthly unit limit for eligible households. Provides monthly free electricity (0-100 units) to reduce burden on poor households and support basic energy needs.'
+                    },
+                    {
+                        name: 'Rajiv Yuva Vikasam Scheme',
+                        shortDesc: 'Loans & support for youth self-employment',
+                        fullDesc: 'Loans & support for youth self-employment and entrepreneurship. Provides business loans up to ₹25 lakh with skills training to help youth start their own enterprises and create employment opportunities.'
+                    }
+                ]
+            },
+            education: {
+                icon: '🎓',
+                title: 'Education Schemes',
+                color: '#8e44ad',
+                schemes: [
+                    {
+                        name: 'Fee Reimbursement',
+                        shortDesc: 'Tuition fee payment for eligible students',
+                        purpose: 'Tuition fee payment',
+                        benefit: 'Tuition fee payment',
+                        eligible: ['SC/ST/BC/EWS students', 'Income below ₹2 lakh/year'],
+                        conditions: ['Must attend recognized college', 'Minimum attendance required'],
+                        fullDesc: 'Fee reimbursement covers tuition fees for eligible students from SC/ST/BC/EWS categories with family income below ₹2 lakh/year. Students must be enrolled in a recognized college and meet minimum attendance requirements to receive reimbursement.'
+                    },
+                    {
+                        name: 'TS ePass Scholarship',
+                        shortDesc: 'Pre & Post-matric scholarship for weaker sections',
+                        purpose: 'Pre and post-matric financial support',
+                        benefit: 'Pre & Post-matric scholarship',
+                        eligible: ['Students from weaker sections'],
+                        conditions: ['Income criteria as per state guidelines', 'Valid caste certificate'],
+                        fullDesc: 'Provides pre-matric and post-matric scholarships to students from economically weaker sections. Applicants must meet income criteria and possess a valid caste certificate as required by the scheme.'
+                    },
+                    {
+                        name: 'Overseas Scholarship',
+                        shortDesc: 'Financial support for foreign education',
+                        purpose: 'Support for students pursuing higher studies abroad',
+                        benefit: 'Financial support for foreign education',
+                        eligible: ['SC/ST/BC/Minority students', 'Good academic record'],
+                        conditions: ['Admission in recognized foreign university', 'Income below ₹2 lakh/year'],
+                        fullDesc: 'Financial support for meritorious students from SC/ST/BC/Minority categories to pursue higher education abroad. Applicants should have admission in a recognized foreign university and meet the income limit (family income below ₹2 lakh/year).'
+                    }
+                ]
+            },
+            infrastructure: {
+                icon: '💧',
+                title: 'Infrastructure & Water',
+                color: '#2980b9',
+                schemes: [
+                    {
+                        name: 'Mission Bhagiratha',
+                        shortDesc: 'Safe piped drinking water expansion',
+                        fullDesc: 'Safe piped drinking water expansion across villages and towns. Ensures every household gets 50-55 liters of safe drinking water daily through modern piped water supply systems throughout Telangana.'
+                    },
+                    {
+                        name: 'Mission Kakatiya',
+                        shortDesc: 'Renovation of tanks and lakes for irrigation',
+                        fullDesc: 'Renovation of tanks and lakes to improve irrigation. Restoration and rejuvenation of historic and community tanks/lakes to improve groundwater recharge and agricultural water availability in rural areas.'
+                    }
+                ]
+            }
+        };
+
+        // ===== CHATBOT CLASS =====
+        class TelanganaSchemesChatbot {
+            constructor() {
+                this.chatMessages = document.getElementById('chatMessages');
+                this.searchBox = document.getElementById('searchBox');
+                this.categoriesContainer = document.getElementById('categoriesContainer');
+                this.currentCategory = null;
+                this.currentScheme = null;
+                
+                this.setupUI();
+                this.setupEventListeners();
+                this.showWelcome();
+            }
+
+            setupUI() {
+                // Populate categories (click-only selection)
+                Object.entries(schemesDatabase).forEach(([key, category]) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'category-btn';
+                    btn.innerHTML = `
+                        <span class="category-icon">${category.icon}</span>
+                        <span>${category.title}</span>
+                    `;
+                    // pass button reference to selectCategory so we can mark active
+                    btn.addEventListener('click', (e) => this.selectCategory(key, btn));
+                    this.categoriesContainer.appendChild(btn);
+                });
+            }
+
+            setupEventListeners() {
+                this.searchBox.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.searchSchemes(this.searchBox.value);
+                    }
+                });
+            }
+
+            showWelcome() {
+                this.chatMessages.innerHTML = '';
+                const welcomeMsg = document.createElement('div');
+                welcomeMsg.className = 'message bot-message';
+                welcomeMsg.innerHTML = `
+                    <div class="welcome-message">
+                        👋 Welcome to Telangana Government Schemes Portal!<br>
+                        Select a category to explore schemes or search for specific programs.
+                    </div>
+                `;
+                this.chatMessages.appendChild(welcomeMsg);
+            }
+
+            selectCategory(categoryKey, btn) {
+                this.currentCategory = categoryKey;
+                this.currentScheme = null;
+                const category = schemesDatabase[categoryKey];
+
+                // Update UI - mark active button
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                if (btn) btn.classList.add('active');
+
+                // Clear messages
+                this.chatMessages.innerHTML = '';
+
+                // Add category header
+                const headerMsg = document.createElement('div');
+                headerMsg.className = 'message bot-message';
+                headerMsg.innerHTML = `
+                    <div class="bot-text" style="background: linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, rgba(247, 147, 30, 0.05) 100%); border-left-color: var(--primary);">
+                        <strong>${category.icon} ${category.title}</strong><br>
+                        Click on any scheme to learn more details about benefits and eligibility.
+                    </div>
+                `;
+                this.chatMessages.appendChild(headerMsg);
+
+                // Add schemes as cards
+                const schemesMsg = document.createElement('div');
+                schemesMsg.className = 'message bot-message';
+                let schemesHTML = '<div class="schemes-container">';
+
+                category.schemes.forEach((scheme, index) => {
+                    schemesHTML += `
+                        <div class="scheme-card" onclick="chatbot.selectScheme('${categoryKey}', ${index})">
+                            <div class="scheme-name">${scheme.name}</div>
+                            <div class="scheme-preview">${scheme.shortDesc}</div>
+                        </div>
+                    `;
+                });
+
+                schemesHTML += '</div>';
+                schemesMsg.innerHTML = schemesHTML;
+                this.chatMessages.appendChild(schemesMsg);
+                
+                // Scroll to bottom
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            selectScheme(categoryKey, schemeIndex) {
+                this.currentScheme = schemeIndex;
+                const category = schemesDatabase[categoryKey];
+                const scheme = category.schemes[schemeIndex];
+
+                // Add scheme detail
+                const detailMsg = document.createElement('div');
+                detailMsg.className = 'message bot-message';
+                detailMsg.innerHTML = `
+                    <div class="scheme-detail">
+                        <div class="detail-title">
+                            ${category.icon} ${scheme.name}
+                        </div>
+                        <div class="detail-content">
+                            <strong>Purpose:</strong> ${scheme.purpose || scheme.shortDesc}<br><br>
+                            <strong>Benefit:</strong> ${scheme.benefit || 'As per scheme rules'}<br><br>
+                            <strong>Who can apply (Eligibility):</strong>
+                            <ul>${(scheme.eligible || []).map(e => `<li>${e}</li>`).join('')}</ul>
+                            <strong>Key Conditions:</strong>
+                            <ul>${(scheme.conditions || []).map(c => `<li>${c}</li>`).join('')}</ul>
+                            <div style="margin-top:12px;">${scheme.fullDesc}</div>
+                        </div>
+                        <div style="margin-top:15px; display:flex; gap:8px; flex-wrap:wrap;">
+                            <button class="back-btn" onclick="chatbot.selectCategory('${categoryKey}')">← Back to ${category.title}</button>
+                            <button class="back-btn" onclick="chatbot.showSchemeJSON('${categoryKey}', ${schemeIndex})">📄 View JSON</button>
+                            <button class="back-btn" onclick="chatbot.showInterviewNotes('${categoryKey}', ${schemeIndex})">📝 Interview Notes</button>
+                            <button class="back-btn" onclick="chatbot.showTSPSCRevision('${categoryKey}', ${schemeIndex})">📚 TSPSC Revision</button>
+                            <button class="back-btn" onclick="chatbot.compareWithAndhra('${categoryKey}', ${schemeIndex})">🔁 Compare (AP)</button>
+                        </div>
+                    </div>
+                `;
+                this.chatMessages.appendChild(detailMsg);
+                
+                // Scroll to detail
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            // Show structured JSON for a scheme
+            showSchemeJSON(categoryKey, schemeIndex) {
+                const category = schemesDatabase[categoryKey];
+                const scheme = category.schemes[schemeIndex];
+                const json = JSON.stringify({ category: category.title, name: scheme.name, purpose: scheme.purpose || '', benefit: scheme.benefit || '', eligible: scheme.eligible || [], conditions: scheme.conditions || [] }, null, 2);
+
+                const msg = document.createElement('div');
+                msg.className = 'message bot-message';
+                msg.innerHTML = `
+                    <div class="bot-text">
+                        <strong>Structured JSON</strong><br>
+                        <pre style="white-space:pre-wrap; margin-top:10px;">${json}</pre>
+                    </div>
+                `;
+                this.chatMessages.appendChild(msg);
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            // Generate concise interview notes for the scheme
+            showInterviewNotes(categoryKey, schemeIndex) {
+                const category = schemesDatabase[categoryKey];
+                const scheme = category.schemes[schemeIndex];
+                const notes = `Purpose: ${scheme.purpose || scheme.shortDesc}\nBenefit: ${scheme.benefit || 'Varies'}\nEligibility: ${(scheme.eligible || []).join(', ')}\nKey Conditions: ${(scheme.conditions || []).join('; ')}`;
+
+                const msg = document.createElement('div');
+                msg.className = 'message bot-message';
+                msg.innerHTML = `
+                    <div class="bot-text">
+                        <strong>Interview-Ready Notes</strong><br>
+                        <pre style="white-space:pre-wrap; margin-top:10px;">${notes}</pre>
+                    </div>
+                `;
+                this.chatMessages.appendChild(msg);
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            // Provide a short TSPSC revision bullet list
+            showTSPSCRevision(categoryKey, schemeIndex) {
+                const category = schemesDatabase[categoryKey];
+                const scheme = category.schemes[schemeIndex];
+                const bullets = [];
+                bullets.push(`Name: ${scheme.name}`);
+                bullets.push(`Purpose: ${scheme.purpose || scheme.shortDesc}`);
+                bullets.push(`Key benefit: ${scheme.benefit || 'As per rules'}`);
+                if (scheme.eligible && scheme.eligible.length) bullets.push(`Eligibility: ${scheme.eligible.slice(0,3).join(', ')}${scheme.eligible.length>3? '...' : ''}`);
+
+                const msg = document.createElement('div');
+                msg.className = 'message bot-message';
+                msg.innerHTML = `
+                    <div class="bot-text">
+                        <strong>TSPSC Revision Points</strong>
+                        <ul style="margin-top:10px;">${bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
+                    </div>
+                `;
+                this.chatMessages.appendChild(msg);
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            // Simple comparison stub with Andhra schemes (example)
+            compareWithAndhra(categoryKey, schemeIndex) {
+                const category = schemesDatabase[categoryKey];
+                const scheme = category.schemes[schemeIndex];
+                // For demonstration, show a template comparing typical differences
+                const msg = document.createElement('div');
+                msg.className = 'message bot-message';
+                msg.innerHTML = `
+                    <div class="bot-text">
+                        <strong>Comparison: Telangana vs Andhra (sample)</strong><br>
+                        <ul style="margin-top:10px;">
+                            <li><strong>Telangana:</strong> ${scheme.name} — ${scheme.shortDesc}</li>
+                            <li><strong>Andhra:</strong> Similar scheme exists with differing benefits/eligibility (check AP portal for latest details)</li>
+                        </ul>
+                        <div style="margin-top:8px; font-style:italic; color:#666;">Note: This is a high-level comparison. Verify exact details on respective state portals.</div>
+                    </div>
+                `;
+                this.chatMessages.appendChild(msg);
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            searchSchemes(query) {
+                if (!query.trim()) return;
+
+                this.chatMessages.innerHTML = '';
+
+                const results = [];
+                Object.entries(schemesDatabase).forEach(([categoryKey, category]) => {
+                    category.schemes.forEach((scheme, index) => {
+                        const schemeName = scheme.name.toLowerCase();
+                        const shortDesc = scheme.shortDesc.toLowerCase();
+                        const fullDesc = scheme.fullDesc.toLowerCase();
+                        const searchQuery = query.toLowerCase();
+
+                        if (schemeName.includes(searchQuery) || 
+                            shortDesc.includes(searchQuery) || 
+                            fullDesc.includes(searchQuery)) {
+                            results.push({ categoryKey, category, scheme, index });
+                        }
+                    });
+                });
+
+                if (results.length === 0) {
+                    const noResultsMsg = document.createElement('div');
+                    noResultsMsg.className = 'message bot-message';
+                    noResultsMsg.innerHTML = `
+                        <div class="bot-text">
+                            😕 No schemes found matching "<strong>${query}</strong>"<br>
+                            Try searching for keywords or select a category above.
+                        </div>
+                    `;
+                    this.chatMessages.appendChild(noResultsMsg);
+                } else {
+                    const resultMsg = document.createElement('div');
+                    resultMsg.className = 'message bot-message';
+                    resultMsg.innerHTML = `
+                        <div class="bot-text">
+                            🔍 Found <strong>${results.length}</strong> matching scheme${results.length !== 1 ? 's' : ''}
+                        </div>
+                    `;
+                    this.chatMessages.appendChild(resultMsg);
+
+                    // Display results
+                    const resultsContainer = document.createElement('div');
+                    resultsContainer.className = 'message bot-message';
+                    let resultsHTML = '<div class="schemes-container">';
+
+                    results.forEach(result => {
+                        resultsHTML += `
+                            <div class="scheme-card" onclick="chatbot.selectScheme('${result.categoryKey}', ${result.index})">
+                                <div class="scheme-name">${result.scheme.name}</div>
+                                <div class="scheme-preview">${result.scheme.shortDesc}</div>
+                                <div style="font-size: 0.8em; color: #999; margin-top: 8px;">
+                                    📂 ${result.category.title}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    resultsHTML += '</div>';
+                    resultsContainer.innerHTML = resultsHTML;
+                    this.chatMessages.appendChild(resultsContainer);
+                }
+
+                this.searchBox.value = '';
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+        }
+
+        // ===== INITIALIZE =====
+        let chatbot;
+        document.addEventListener('DOMContentLoaded', () => {
+            chatbot = new TelanganaSchemesChatbot();
+        });
+    </script>
+</body>
+</html>
